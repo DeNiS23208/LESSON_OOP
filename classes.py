@@ -24,4 +24,3 @@ class Category:
         self.products.append(product)
         # Обновляем общее количество товаров во всех категориях
         Category.total_products += 1
-
