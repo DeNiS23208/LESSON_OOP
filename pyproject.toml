@@ -1,0 +1,24 @@
+[project]
+name = "homework-oop"
+version = "0.1.0"
+description = ""
+authors = [
+    {name = "Denis Gulyaev",email = "den23208@mail.ru"}
+]
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+]
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+
+[tool.poetry.group.lint.dependencies]
+black = "^25.1.0"
+flake8 = "^7.1.1"
+mypy = "^1.14.1"
+isort = "^6.0.0"
+
