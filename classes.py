@@ -2,8 +2,31 @@ class Product:
     def __init__(self, name: str, description: str, price: float, quantity: int):
         self.name = name
         self.description = description
-        self.price = price
+        self._price = price  # Приватный атрибут для цены
         self.quantity = quantity
+
+    @property
+    def price(self):
+        """Геттер для атрибута цены."""
+        return self._price
+
+    @price.setter
+    def price(self, value: float):
+        """Сеттер для атрибута цены с проверкой на отрицательное значение."""
+        if value <= 0:
+            print("Цена не должна быть нулевая или отрицательная")
+        else:
+            self._price = value
+
+    @classmethod
+    def new_product(cls, product_info: dict):
+        """Класс-метод для создания нового товара из словаря."""
+        return cls(
+            product_info["name"],
+            product_info["description"],
+            product_info["price"],
+            product_info["quantity"],
+        )
 
 
 class Category:
@@ -14,13 +37,37 @@ class Category:
     def __init__(self, name: str, description: str, products=None):
         self.name = name
         self.description = description
-        self.products: list[Product] = products if products else []
+        # Приватный атрибут списка товаров
+        self._products: list[Product] = products if products else []
 
         # Увеличиваем общее количество категорий при создании объекта
         Category.total_categories += 1
 
     def add_product(self, product: Product):
         """Добавляет продукт в категорию и обновляет счетчик товаров."""
-        self.products.append(product)
-        # Обновляем общее количество товаров во всех категориях
-        Category.total_products += 1
+        if isinstance(product, Product):  # Проверка, что передан объект Product
+            self._products.append(product)
+            # Обновляем общее количество товаров во всех категориях
+            Category.total_products += 1
+        else:
+            raise ValueError("Товар должен быть объектом класса Product.")
+
+    @property
+    def products(self):
+        """Геттер для списка товаров в категории."""
+        return self._products
+
+    @property
+    def product_count(self):
+        """Возвращает количество товаров в категории."""
+        return len(self._products)
+
+    def get_products(self):
+        """Возвращает список товаров в категории в виде строк."""
+        product_strings = []
+        for product in self._products:
+            product_string = (
+                f"{product.name}, {product.price} руб. Остаток: {product.quantity} шт."
+            )
+            product_strings.append(product_string)
+        return product_strings
