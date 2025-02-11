@@ -54,6 +54,11 @@ class Category:
         # Увеличиваем общее количество категорий при создании объекта
         Category.total_categories += 1
 
+    def __str__(self):
+        """Строковое представление категории"""
+        total_quantity = sum(product.quantity for product in self._products)
+        return f"{self.name}, количество продуктов: {total_quantity} шт."
+
     def add_product(self, product: Product):
         """Добавляет продукт в категорию и обновляет счетчик товаров."""
         if isinstance(product, Product):  # Проверка, что передан объект Product
