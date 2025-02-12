@@ -105,3 +105,35 @@ def test_get_products(category, product2):
     category.add_product(product2)
     expected_output.append("Iphone 15, 210000.0 руб. Остаток: 8 шт.")
     assert category.get_products() == expected_output
+
+
+def test_product_str():
+    """Тест строкового представления товара"""
+    product = Product("Хлеб", "Свежий ржаной хлеб", 50, 20)
+    assert str(product) == "Хлеб, 50 руб. Остаток: 20 шт."
+
+
+def test_product_addition():
+    """Тест сложения товаров"""
+    p1 = Product("Молоко", "Свежая фермерская продукция", 100, 10)
+    p2 = Product("Сыр", "Натуральный сыр", 200, 2)
+    assert p1 + p2 == 1400  # 100 * 10 + 200 * 2 = 1400
+
+
+def test_category_get_products():
+    """Тест метода get_products()"""
+    p1 = Product("Яблоко", "Красное яблоко", 30, 5)
+    p2 = Product("Груша", "Сладкая груша", 40, 7)
+    category = Category("Фрукты", "Свежие фрукты", [p1, p2])
+
+    assert category.get_products() == [
+        "Яблоко, 30 руб. Остаток: 5 шт.",
+        "Груша, 40 руб. Остаток: 7 шт.",
+    ]
+
+
+def test_product_addition_type_error():
+    """Тест ошибки при сложении продукта с не-Product объектом"""
+    p1 = Product("Молоко", "Свежая фермерская продукция", 100, 10)
+    with pytest.raises(TypeError):
+        p1 + 10  # Должно вызывать TypeError

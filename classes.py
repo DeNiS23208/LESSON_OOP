@@ -5,6 +5,17 @@ class Product:
         self._price = price  # Приватный атрибут для цены
         self.quantity = quantity
 
+    def __str__(self):
+        """Строковое представление товара"""
+        return f"{self.name}, {self._price} руб. Остаток: {self.quantity} шт."
+
+    def __add__(self, other):
+        """Складывает два продукта по их общей стоимости (цена * количество)."""
+        if isinstance(other, Product):
+            return (self._price * self.quantity) + (other._price * other.quantity)
+
+        raise TypeError("Сложение возможно только между объектами Product.")
+
     @property
     def price(self):
         """Геттер для атрибута цены."""
@@ -43,6 +54,11 @@ class Category:
         # Увеличиваем общее количество категорий при создании объекта
         Category.total_categories += 1
 
+    def __str__(self):
+        """Строковое представление категории"""
+        total_quantity = sum(product.quantity for product in self._products)
+        return f"{self.name}, количество продуктов: {total_quantity} шт."
+
     def add_product(self, product: Product):
         """Добавляет продукт в категорию и обновляет счетчик товаров."""
         if isinstance(product, Product):  # Проверка, что передан объект Product
@@ -63,11 +79,5 @@ class Category:
         return len(self._products)
 
     def get_products(self):
-        """Возвращает список товаров в категории в виде строк."""
-        product_strings = []
-        for product in self._products:
-            product_string = (
-                f"{product.name}, {product.price} руб. Остаток: {product.quantity} шт."
-            )
-            product_strings.append(product_string)
-        return product_strings
+        """Возвращает список товаров в категории в виде строк"""
+        return [str(product) for product in self._products]
