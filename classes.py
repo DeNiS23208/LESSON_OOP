@@ -65,7 +65,7 @@ class Smartphone(Product):
         )
 
     def __add__(self, other):
-        if isinstance(other, Smartphone):
+        if isinstance(other, Smartphone) and type(self) == type(other):
             return (self._price * self.quantity) + (other._price * other.quantity)
         raise TypeError(
             "Сложение возможно только между объектами одного типа (Smartphone)."
@@ -96,7 +96,7 @@ class LawnGrass(Product):
         )
 
     def __add__(self, other):
-        if isinstance(other, LawnGrass):
+        if isinstance(other, LawnGrass) and type(self) == type(other):
             return (self._price * self.quantity) + (other._price * other.quantity)
         raise TypeError(
             "Сложение возможно только между объектами одного типа (LawnGrass)."
