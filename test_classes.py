@@ -1,6 +1,6 @@
 import pytest
 
-from classes import Category, Product
+from classes import Category, LawnGrass, Product, Smartphone
 
 
 @pytest.fixture(autouse=True)
@@ -137,3 +137,43 @@ def test_product_addition_type_error():
     p1 = Product("Молоко", "Свежая фермерская продукция", 100, 10)
     with pytest.raises(TypeError):
         p1 + 10  # Должно вызывать TypeError
+
+
+def test_smartphone_addition():
+    phone1 = Smartphone(
+        "Phone A", "Description", 10000, 2, "High", "Model X", 128, "Black"
+    )
+    phone2 = Smartphone(
+        "Phone B", "Description", 15000, 1, "High", "Model Y", 256, "Blue"
+    )
+    assert phone1 + phone2 == 35000
+
+
+def test_lawngrass_addition():
+    grass1 = LawnGrass("Grass A", "Green grass", 500, 10, "Russia", 14, "Green")
+    grass2 = LawnGrass("Grass B", "Another grass", 700, 5, "USA", 10, "Dark Green")
+    assert grass1 + grass2 == 8500
+
+
+def test_addition_error():
+    phone = Smartphone(
+        "Phone", "Description", 10000, 2, "High", "Model X", 128, "Black"
+    )
+    grass = LawnGrass("Grass", "Green grass", 500, 10, "Russia", 14, "Green")
+    with pytest.raises(TypeError):
+        phone + grass
+
+
+def test_category_add_product():
+    category = Category("Electronics", "Devices and gadgets")
+    phone = Smartphone(
+        "Phone", "Description", 10000, 2, "High", "Model X", 128, "Black"
+    )
+    category.add_product(phone)
+    assert len(category.products) == 1
+
+
+def test_category_add_invalid():
+    category = Category("Electronics", "Devices and gadgets")
+    with pytest.raises(TypeError):
+        category.add_product("Not a product")
