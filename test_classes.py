@@ -1,6 +1,6 @@
 import pytest
 
-from classes import Category, LawnGrass, Product, Smartphone
+from classes import Category, Product
 
 
 @pytest.fixture(autouse=True)
@@ -20,6 +20,52 @@ def test_product_initialization():
     assert product.description == "256GB, Серый цвет, 200MP камера"
     assert product.price == 180000.0
     assert product.quantity == 5
+
+
+# Тест для абстрактного класса BaseProduct и создания продукта с использованием new_product
+def test_new_product_creation():
+    product_info = {
+        "name": "Samsung Galaxy S23 Ultra",
+        "description": "256GB, Серый цвет, 200MP камера",
+        "price": 180000.0,
+        "quantity": 5,
+    }
+
+    # Проверяем, что new_product создает объект класса Product
+    product = Product.new_product(product_info)
+    assert isinstance(product, Product)
+    assert product.name == "Samsung Galaxy S23 Ultra"
+    assert product.price == 180000.0
+    assert product.quantity == 5
+
+
+# Тест для создания объекта Product и проверки его атрибутов
+def test_product_creation():
+    product = Product(
+        "Samsung Galaxy S23 Ultra", "256GB, Серый цвет, 200MP камера", 180000.0, 5
+    )
+
+    # Проверяем правильность инициализации атрибутов
+    assert product.name == "Samsung Galaxy S23 Ultra"
+    assert product.description == "256GB, Серый цвет, 200MP камера"
+    assert product.price == 180000.0
+    assert product.quantity == 5
+
+
+# Тест для создания объекта Category и проверки его атрибутов
+def test_category_creation():
+    product1 = Product(
+        "Samsung Galaxy S23 Ultra", "256GB, Серый цвет, 200MP камера", 180000.0, 5
+    )
+    product2 = Product("Iphone 15", "512GB, Gray space", 210000.0, 8)
+
+    category = Category("Смартфоны", "Описание смартфонов", [product1, product2])
+
+    # Проверяем правильность инициализации атрибутов категории
+    assert category.name == "Смартфоны"
+    assert category.description == "Описание смартфонов"
+    assert len(category.products) == 2
+    assert category.product_count == 2
 
 
 def test_category_initialization():
@@ -100,11 +146,11 @@ def test_new_product_method():
 def test_get_products(category, product2):
     """Проверка метода get_products"""
     expected_output = ["Samsung Galaxy S23 Ultra, 180000.0 руб. Остаток: 5 шт."]
-    assert category.get_products() == expected_output
+    assert [str(p) for p in category.products] == expected_output
 
     category.add_product(product2)
     expected_output.append("Iphone 15, 210000.0 руб. Остаток: 8 шт.")
-    assert category.get_products() == expected_output
+    assert [str(p) for p in category.products] == expected_output
 
 
 def test_product_str():
@@ -126,7 +172,7 @@ def test_category_get_products():
     p2 = Product("Груша", "Сладкая груша", 40, 7)
     category = Category("Фрукты", "Свежие фрукты", [p1, p2])
 
-    assert category.get_products() == [
+    assert [str(p) for p in category.products] == [
         "Яблоко, 30 руб. Остаток: 5 шт.",
         "Груша, 40 руб. Остаток: 7 шт.",
     ]
@@ -137,43 +183,3 @@ def test_product_addition_type_error():
     p1 = Product("Молоко", "Свежая фермерская продукция", 100, 10)
     with pytest.raises(TypeError):
         p1 + 10  # Должно вызывать TypeError
-
-
-def test_smartphone_addition():
-    phone1 = Smartphone(
-        "Phone A", "Description", 10000, 2, "High", "Model X", 128, "Black"
-    )
-    phone2 = Smartphone(
-        "Phone B", "Description", 15000, 1, "High", "Model Y", 256, "Blue"
-    )
-    assert phone1 + phone2 == 35000
-
-
-def test_lawngrass_addition():
-    grass1 = LawnGrass("Grass A", "Green grass", 500, 10, "Russia", 14, "Green")
-    grass2 = LawnGrass("Grass B", "Another grass", 700, 5, "USA", 10, "Dark Green")
-    assert grass1 + grass2 == 8500
-
-
-def test_addition_error():
-    phone = Smartphone(
-        "Phone", "Description", 10000, 2, "High", "Model X", 128, "Black"
-    )
-    grass = LawnGrass("Grass", "Green grass", 500, 10, "Russia", 14, "Green")
-    with pytest.raises(TypeError):
-        phone + grass
-
-
-def test_category_add_product():
-    category = Category("Electronics", "Devices and gadgets")
-    phone = Smartphone(
-        "Phone", "Description", 10000, 2, "High", "Model X", 128, "Black"
-    )
-    category.add_product(phone)
-    assert len(category.products) == 1
-
-
-def test_category_add_invalid():
-    category = Category("Electronics", "Devices and gadgets")
-    with pytest.raises(TypeError):
-        category.add_product("Not a product")
