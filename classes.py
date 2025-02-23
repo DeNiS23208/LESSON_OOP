@@ -1,37 +1,62 @@
-class Product:
+from abc import ABC, abstractmethod
+
+
+class CreationLogger:
+    """Миксин для логирования создания объектов."""
+
+    def __init__(self, *args, **kwargs):
+        class_name = self.__class__.__name__
+        print(f"Создан объект класса {class_name} с параметрами: {args}, {kwargs}")
+        super().__init__(*args, **kwargs)
+
+
+class BaseProduct(ABC):
+    """Абстрактный базовый класс для всех товаров."""
+
     def __init__(self, name: str, description: str, price: float, quantity: int):
         self.name = name
         self.description = description
-        self._price = price  # Приватный атрибут для цены
+        self._price = price
         self.quantity = quantity
 
+    @abstractmethod
     def __str__(self):
-        """Строковое представление товара"""
-        return f"{self.name}, {self._price} руб. Остаток: {self.quantity} шт."
+        pass
+
+    @classmethod
+    @abstractmethod
+    def new_product(cls, product_info: dict):
+        pass
+
+
+class Product(CreationLogger, BaseProduct):
+    """Класс продукта с базовым функционалом."""
+
+    def __init__(self, name: str, description: str, price: float, quantity: int):
+        super().__init__(name, description, price, quantity)
+
+    def __str__(self):
+        return f"{self.name}, {self.price} руб. Остаток: {self.quantity} шт."
 
     def __add__(self, other):
-        """Складывает два продукта по их общей стоимости (цена * количество)."""
-        if isinstance(other, Product):
-            return (self._price * self.quantity) + (other._price * other.quantity)
-
-        raise TypeError("Сложение возможно только между объектами Product.")
+        """Складывает только объекты одного типа по их общей стоимости."""
+        if isinstance(other, self.__class__):
+            return (self.price * self.quantity) + (other.price * other.quantity)
+        raise TypeError("Сложение возможно только между объектами одного класса.")
 
     @property
     def price(self):
-        """Геттер для атрибута цены."""
         return self._price
 
     @price.setter
     def price(self, value: float):
-        """Сеттер для атрибута цены с проверкой на отрицательное значение."""
         if value <= 0:
-            print("Цена не должна быть нулевая или отрицательная")
+            print("Цена не может быть отрицательной или нулевой")
         else:
             self._price = value
 
     @classmethod
     def new_product(cls, product_info: dict):
-        """Класс-метод для создания нового товара из словаря."""
         return cls(
             product_info["name"],
             product_info["description"],
@@ -41,16 +66,10 @@ class Product:
 
 
 class Smartphone(Product):
+    """Класс смартфона с дополнительными параметрами."""
+
     def __init__(
-        self,
-        name: str,
-        description: str,
-        price: float,
-        quantity: int,
-        efficiency: str,
-        model: str,
-        memory: int,
-        color: str,
+        self, name, description, price, quantity, efficiency, model, memory, color
     ):
         super().__init__(name, description, price, quantity)
         self.efficiency = efficiency
@@ -60,28 +79,16 @@ class Smartphone(Product):
 
     def __str__(self):
         return (
-            f"{self.name} ({self.model}), {self.memory}GB, {self.color}, "
-            f"{self._price} руб. Остаток: {self.quantity} шт."
-        )
-
-    def __add__(self, other):
-        if isinstance(other, Smartphone) and type(self) == type(other):
-            return (self._price * self.quantity) + (other._price * other.quantity)
-        raise TypeError(
-            "Сложение возможно только между объектами одного типа (Smartphone)."
+            f"{self.name} ({self.model}, "
+            f"{self.color}, {self.memory}GB) - {self.price} руб. Остаток: {self.quantity} шт."
         )
 
 
 class LawnGrass(Product):
+    """Класс газонной травы с дополнительными параметрами."""
+
     def __init__(
-        self,
-        name: str,
-        description: str,
-        price: float,
-        quantity: int,
-        country: str,
-        germination_period: int,
-        color: str,
+        self, name, description, price, quantity, country, germination_period, color
     ):
         super().__init__(name, description, price, quantity)
         self.country = country
@@ -90,54 +97,48 @@ class LawnGrass(Product):
 
     def __str__(self):
         return (
-            f"{self.name} ({self.country}), {self.color}, "
-            f"Прорастание: {self.germination_period} дней, "
-            f"{self._price} руб. Остаток: {self.quantity} шт."
-        )
-
-    def __add__(self, other):
-        if isinstance(other, LawnGrass) and type(self) == type(other):
-            return (self._price * self.quantity) + (other._price * other.quantity)
-        raise TypeError(
-            "Сложение возможно только между объектами одного типа (LawnGrass)."
+            f"{self.name} ({self.color}, {self.germination_period},"
+            f"{self.country}) - {self.price} руб. Остаток: {self.quantity} шт."
         )
 
 
 class Category:
-    # Атрибуты класса для общего количества категорий и товаров
+    """Класс для хранения и работы с категориями товаров."""
+
     total_categories = 0
     total_products = 0
 
     def __init__(self, name: str, description: str, products=None):
         self.name = name
         self.description = description
-        # Приватный атрибут списка товаров
-        self._products: list[Product] = products if products else []
+        self._products = products if products else []
 
-        # Увеличиваем общее количество категорий при создании объекта
         Category.total_categories += 1
+        Category.total_products += len(self._products)
 
     def __str__(self):
-        """Строковое представление категории"""
-        total_quantity = sum(product.quantity for product in self._products)
-        return f"{self.name}, количество продуктов: {total_quantity} шт."
+        return f"{self.name}, количество продуктов: {len(self._products)}"
 
     def add_product(self, product: Product):
-        if not isinstance(product, Product):
-            raise TypeError("Можно добавлять только объекты Product и его наследников.")
-        self._products.append(product)
-        Category.total_products += 1
+        """Добавляет продукт в категорию и обновляет счетчик товаров."""
+        if isinstance(product, Product):
+            self._products.append(product)
+            Category.total_products += 1
+        else:
+            raise TypeError("Можно добавлять только объекты типа Product.")
 
     @property
     def products(self):
-        """Геттер для списка товаров в категории."""
         return self._products
 
     @property
     def product_count(self):
-        """Возвращает количество товаров в категории."""
         return len(self._products)
 
-    def get_products(self):
-        """Возвращает список товаров в категории в виде строк"""
-        return [str(product) for product in self._products]
+    @classmethod
+    def category_count(cls):
+        return cls.total_categories
+
+    @classmethod
+    def total_product_count(cls):
+        return cls.total_products
