@@ -183,3 +183,26 @@ def test_product_addition_type_error():
     p1 = Product("Молоко", "Свежая фермерская продукция", 100, 10)
     with pytest.raises(TypeError):
         p1 + 10  # Должно вызывать TypeError
+
+
+def test_product_quantity_zero():
+    """Проверка, что при нулевом количестве вызывается ValueError"""
+    with pytest.raises(
+        ValueError, match="Товар с нулевым количеством не может быть добавлен"
+    ):
+        Product("Бракованный товар", "Неверное количество", 1000.0, 0)
+
+
+def test_middle_price():
+    """Проверка метода middle_price()"""
+    product1 = Product("Товар 1", "Описание 1", 100.0, 2)
+    product2 = Product("Товар 2", "Описание 2", 200.0, 3)
+    category = Category("Категория 1", "Описание", [product1, product2])
+
+    assert category.middle_price() == 150.0  # (100*2 + 200*3) / 5 = 150
+
+
+def test_middle_price_empty():
+    """Проверка middle_price() для пустой категории"""
+    empty_category = Category("Пустая категория", "Описание", [])
+    assert empty_category.middle_price() == 0

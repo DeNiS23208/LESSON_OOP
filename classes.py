@@ -33,6 +33,8 @@ class Product(CreationLogger, BaseProduct):
     """Класс продукта с базовым функционалом."""
 
     def __init__(self, name: str, description: str, price: float, quantity: int):
+        if quantity == 0:
+            raise ValueError("Товар с нулевым количеством не может быть добавлен")
         super().__init__(name, description, price, quantity)
 
     def __str__(self):
@@ -126,6 +128,14 @@ class Category:
             Category.total_products += 1
         else:
             raise TypeError("Можно добавлять только объекты типа Product.")
+
+    def middle_price(self):
+        try:
+            return sum(product.price for product in self._products) / len(
+                self._products
+            )
+        except ZeroDivisionError:
+            return 0
 
     @property
     def products(self):
